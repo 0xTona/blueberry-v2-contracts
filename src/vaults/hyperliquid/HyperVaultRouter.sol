@@ -11,7 +11,7 @@ import {FixedPointMathLib as FpMath} from "@solmate/utils/FixedPointMathLib.sol"
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {BlueberryErrors as Errors} from "@blueberry-v2/helpers/BlueberryErrors.sol";
 
-import {WrappedVaultShare} from "@blueberry-v2//vaults/hyperliquid/WrappedVaultShare.sol";
+import {WrappedVaultShare} from "@blueberry-v2/vaults/hyperliquid/WrappedVaultShare.sol";
 import {HyperliquidEscrow} from "@blueberry-v2/vaults/hyperliquid/HyperliquidEscrow.sol";
 import {IHyperVaultRouter} from "@blueberry-v2/vaults/hyperliquid/interfaces/IHyperVaultRouter.sol";
 import {IHyperliquidEscrow} from "@blueberry-v2/vaults/hyperliquid/interfaces/IHyperliquidEscrow.sol";
