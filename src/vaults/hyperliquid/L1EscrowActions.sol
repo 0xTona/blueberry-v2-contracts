@@ -182,23 +182,41 @@ abstract contract L1EscrowActions is EscrowAssetStorage, AccessControlUpgradeabl
 
     /**
      * @notice Executes an IOC order on the L1
-     * @dev No balance/price validation is necessary since we track the balances of all account types to calculate tvl,
-     *      so any failures can simply be retried with different parameters.
+     * @dev This function has been deprecated in favor of the `tradeV2` function which
+     *      allows for safer trading with limit orders.
+     */
+    function trade(uint32, /*assetIndex*/ bool, /*isBuy*/ uint64, /*limitPx*/ uint64, /*sz*/ uint8 /*tif*/ )
+        external
+        onlyRole(LIQUIDITY_ADMIN_ROLE)
+        singleActionBlock
+    {
+        revert("DEPRECATED: use tradeV2");
+    }
+
+    /**
+     * @notice Executes an IOC order on the L1
+     * @dev The price of the trade is set based on the current spot price of the asset.
      * @param assetIndex The index of the asset to trade
      * @param isBuy Whether to buy or sell
-     * @param limitPx The limit price
      * @param sz The size of the trade
      * @param tif The time in force for the order, 1 = Alo, 2 = Gtc, 3 = IOC
      */
-    function trade(uint32 assetIndex, bool isBuy, uint64 limitPx, uint64 sz, uint8 tif)
+    function tradeV2(uint32 assetIndex, bool isBuy, uint64 sz, uint8 tif)
         external
         onlyRole(LIQUIDITY_ADMIN_ROLE)
         singleActionBlock
     {
         V1AssetStorage storage $ = _getV1AssetStorage();
         require($.supportedAssets.contains(assetIndex), Errors.COLLATERAL_NOT_SUPPORTED());
-        uint32 iocIndex = SPOT_MARKET_INDEX_OFFSET + $.assetDetails[assetIndex].spotMarket;
-        _limitOrder(iocIndex, isBuy, limitPx, sz, tif);
+
+        AssetDetails memory details = $.assetDetails[assetIndex];
+        uint32 spotMarketIndex = details.spotMarket;
+        uint64 spotPrice = _spotPrice(spotMarketIndex) * uint64(10 ** details.szDecimals);
+        uint32 iocIndex = SPOT_MARKET_INDEX_OFFSET + spotMarketIndex;
+
+        require(spotPrice != 0, "PRICE_ZERO());");
+
+        _limitOrder(iocIndex, isBuy, spotPrice, sz, tif);
     }
 
     /**
@@ -364,4 +382,13 @@ abstract contract L1EscrowActions is EscrowAssetStorage, AccessControlUpgradeabl
         uint160 base = uint160(0x2000000000000000000000000000000000000000);
         return address(base | uint160(token));
     }
+
+    /**
+     * @notice Returns the raw spot price for a given market index.
+     * @dev price in terms of the quote asset (USDC in the case of these vaults)
+     * @dev Implementation of this function is provided in HyperliquidEscrow.sol
+     * @param spotMarket The index of the spot market
+     * @return price Raw spot price of the asset
+     */
+    function _spotPrice(uint32 spotMarket) internal view virtual returns (uint64 price);
 }
