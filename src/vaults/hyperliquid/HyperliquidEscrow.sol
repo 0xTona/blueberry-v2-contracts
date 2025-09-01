@@ -151,10 +151,7 @@ contract HyperliquidEscrow is IHyperliquidEscrow, L1EscrowActions {
 
     /// @inheritdoc IHyperliquidEscrow
     function getRate(uint32 spotMarket, uint8 szDecimals) public view override returns (uint256) {
-        (bool success, bytes memory result) = SPOT_PX_PRECOMPILE_ADDRESS.staticcall(abi.encode(spotMarket));
-        require(success, Errors.PRECOMPILE_CALL_FAILED());
-        uint256 scaledRate = uint256(abi.decode(result, (uint64))) * USDC_SPOT_SCALING * (10 ** szDecimals);
-        return scaledRate;
+        return _spotPrice(spotMarket) * USDC_SPOT_SCALING * (10 ** szDecimals);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -200,5 +197,17 @@ contract HyperliquidEscrow is IHyperliquidEscrow, L1EscrowActions {
      */
     function _scaleToSpotDecimals(uint64 amount_) internal pure returns (uint64) {
         return uint64(amount_ * (10 ** (USDC_SPOT_DECIMALS - USDC_PERP_DECIMALS)));
+    }
+
+    /**
+     * @notice Returns the raw spot price for a given market index.  Overrides the virtual
+     * @dev price in terms of the quote asset (USDC in the case of these vaults)
+     * @param spotMarket The index of the spot market
+     * @return price Raw spot price of the asset
+     */
+    function _spotPrice(uint32 spotMarket) internal view override returns (uint64 price) {
+        (bool success, bytes memory result) = SPOT_PX_PRECOMPILE_ADDRESS.staticcall(abi.encode(spotMarket));
+        require(success, Errors.PRECOMPILE_CALL_FAILED());
+        price = abi.decode(result, (uint64));
     }
 }
