@@ -1,8 +1,8 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
 @openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
-@openzeppelin-contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol=lib/openzeppelin-contracts-upgradeable-v4/contracts/security/ReentrancyGuardUpgradeable.sol
 @openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
+@openzeppelin-contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol=lib/openzeppelin-contracts-upgradeable-v4/contracts/security/ReentrancyGuardUpgradeable.sol
 @blueberry-v2/=src/
 @solmate/=lib/solmate/src/
 solmate/=lib/solmate/src/
